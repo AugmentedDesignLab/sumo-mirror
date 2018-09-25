@@ -114,6 +114,20 @@ public:
      */
     void createChequerBoard(int numX, int numY, double spaceX, double spaceY, double attachLength);
 
+	/** @brief Creates a town-sim network
+	*
+	* Imports a list of nodes and edges from town-sim as a text file. Builds NGNodes
+	*  at the according positions and connects them using NGNet::connect.
+	* Stores both the nodes and the edges within the internal container.
+	*
+	* The nodes get an id from coordinate location. The ids
+	*  of the links are set in NGNet::connect.
+	*
+	* @param[in] filename The path of the input file
+	* @see NGNet::connect
+	*/
+	void createTownSim(std::string filename);
+
 
     /** @brief Creates a spider network
      *

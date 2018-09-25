@@ -24,6 +24,7 @@
 // ===========================================================================
 #include <config.h>
 
+#include <fstream>
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -88,7 +89,7 @@ NGNet::alphabeticalCode(int i, int iMax) {
     }
     return result;
 }
-/*
+
 void
 NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, double attachLength) {
 
@@ -140,37 +141,37 @@ NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, doub
         }
     }
 }
-*/
 
 void
-NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, double attachLength) {
+NGNet::createTownSim(std::string filename) {
 
-	std::string input = "(125, 110),(113, 110),[]\n(108, 127),(137, 126),[]\n(113, 100),(113, 110),[]\n(137, 126),(132, 141),[]\n(124, 150),(132, 141),[]\n(144, 149),(132, 141),[]\n(137, 126),(136, 115),[]\n(102, 111),(113, 110),[]\n(108, 127),(100, 127),[]\n(108, 127),(109, 150),[]\n(125, 110),(136, 115),[]\n(136, 115),(144, 103),[]\n(102, 111),(101, 100),[]\n(125, 110),(126, 100),[]\n";
+	std::ifstream file(filename);
+	std::cout << filename << std::endl;
+
+	std::string input;
 
 	std::string delim1 = "(";
 	std::string delim2 = "),(";
 	std::string delim3 = "),[";
-	std::string delim4 = "]\n";
+	std::string delim4 = "]";
 
 	std::string delimA = ",";
 	std::string delimB = "(";
 	std::string delimC = "),(";
 	std::string delimD = ")";
 
-	while (input.length() > 0) {
+	while (std::getline(file, input)) {
 		input = input.substr(input.find(delim1) + 1);
 		std::string node1 = input.substr(0, input.find(delim2));
 		int x1 = std::stoi(node1.substr(0, input.find(delimA)));
 		int y1 = std::stoi(node1.substr(input.find(delimA) + 1));
-
-		std::cout << node1 << std::endl;
 		
 		NGNode* n1 = findNode(x1, y1);
 		if (n1 == NULL) {
 			std::string id1 = std::to_string(x1) + "_" + std::to_string(y1);
 			n1 = new NGNode(id1, x1, y1);
-			n1->setX(x1 * 100);
-			n1->setY(y1 * 100);
+			n1->setX(x1 * 10);
+			n1->setY(y1 * 10);
 			myNodeList.push_back(n1);
 		}
 		
@@ -178,22 +179,18 @@ NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, doub
 		std::string node2 = input.substr(0, input.find(delim3));
 		int x2 = std::stoi(node2.substr(0, input.find(delimA)));
 		int y2 = std::stoi(node2.substr(input.find(delimA) + 1));
-
-		std::cout << node2 << std::endl;
 		
 		NGNode* n2 = findNode(x2, y2);
 		if (n2 == NULL) {
 			std::string id2 = std::to_string(x2) + "_" + std::to_string(y2);
 			n2 = new NGNode(id2, x2, y2);
-			n2->setX(x2 * 100);
-			n2->setY(y2 * 100);
+			n2->setX(x2 * 10);
+			n2->setY(y2 * 10);
 			myNodeList.push_back(n2);
 		}
 		
 		input = input.substr(input.find(delim3) + 3);
 		std::string shape = input.substr(0, input.find(delim4));
-		input = input.substr(input.find(delim4) + 2);
-
 		connect(n1, n2);
 	}
 }
