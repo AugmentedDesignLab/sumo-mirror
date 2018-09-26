@@ -59,10 +59,13 @@ public:
      * Adds itself to the start and the end node's lists of connections.
      *
      * @param[in] id The id of the link
-     * @param[in] StarNGNode The begin node
+     * @param[in] StartNode The begin node
      * @param[in] EndNode The end node
+	 * @param[in] Shape Shape of the edge 
      */
     NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode);
+	NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode, PositionVector shape);
+
 
 
     /** @brief Destructor
@@ -108,6 +111,8 @@ private:
 
     /// @brief The node the edge ends at
     NGNode* myEndNode;
+
+	PositionVector myShape;
 
 };
 

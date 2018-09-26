@@ -340,8 +340,9 @@ NBNetBuilder::compute(OptionsCont& oc, const std::set<std::string>& explicitTurn
     if (oc.exists("geometry.junction-mismatch-threshold")) {
         myNodeCont.computeNodeShapes(oc.getFloat("geometry.junction-mismatch-threshold"));
     } else {
-        myNodeCont.computeNodeShapes();
+		myNodeCont.computeNodeShapes();
     }
+
     PROGRESS_TIME_MESSAGE(before);
     //
     before = SysUtils::getCurrentMillis();

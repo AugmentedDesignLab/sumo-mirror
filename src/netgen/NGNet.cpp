@@ -146,8 +146,6 @@ void
 NGNet::createTownSim(std::string filename) {
 
 	std::ifstream file(filename);
-	std::cout << filename << std::endl;
-
 	std::string input;
 
 	std::string delim1 = "(";
@@ -191,7 +189,22 @@ NGNet::createTownSim(std::string filename) {
 		
 		input = input.substr(input.find(delim3) + 3);
 		std::string shape = input.substr(0, input.find(delim4));
-		connect(n1, n2);
+
+		std::vector<Position> v;
+		
+		if (shape.find(delimB) != std::string::npos) {
+			v.push_back(*(new Position(x1 * 10, y1 * 10, 0)));
+			while (shape.find(delimB) != std::string::npos) {
+				shape = shape.substr(shape.find(delimB) + 1);
+				int turnX = std::stoi(shape.substr(0, shape.find(delimA)));
+				int turnY = std::stoi(shape.substr(shape.find(delimA) + 1, shape.find(delimD)));
+				v.push_back(*(new Position(turnX * 10.0, turnY * 10.0, 0.0)));
+			}
+			v.push_back(*(new Position(x2 * 10, y2 * 10, 0)));
+		}
+
+		PositionVector pos = *(new PositionVector(v));
+		connect(n1, n2, pos);
 	}
 }
 
@@ -266,6 +279,18 @@ NGNet::connect(NGNode* node1, NGNode* node2) {
     NGEdge* link2 = new NGEdge(id2, node2, node1);
     myEdgeList.push_back(link1);
     myEdgeList.push_back(link2);
+}
+
+void
+NGNet::connect(NGNode* node1, NGNode* node2, PositionVector shape) {
+	std::string id1 = node1->getID() + (myAlphaIDs ? "" : "to") + node2->getID();
+	std::string id2 = node2->getID() + (myAlphaIDs ? "" : "to") + node1->getID();
+	NGEdge* link1 = new NGEdge(id1, node1, node2, shape);
+	//NGEdge* link1 = new NGEdge(id1, node1, node2);
+	NGEdge* link2 = new NGEdge(id2, node2, node1, shape.reverse());
+	//NGEdge* link2 = new NGEdge(id2, node2, node1);
+	myEdgeList.push_back(link1);
+	myEdgeList.push_back(link2);
 }
 
 
