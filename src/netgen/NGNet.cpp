@@ -24,6 +24,7 @@
 // ===========================================================================
 #include <config.h>
 
+#include <fstream>
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -141,6 +142,73 @@ NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, doub
     }
 }
 
+void
+NGNet::createTownSim(std::string filename) {
+
+	std::ifstream file(filename);
+	std::string input;
+
+	std::string delim1 = "(";
+	std::string delim2 = "),(";
+	std::string delim3 = "),[";
+	std::string delim4 = "]";
+
+	std::string delimA = ",";
+	std::string delimB = "(";
+	std::string delimC = "),(";
+	std::string delimD = ")";
+
+	while (std::getline(file, input)) {
+		input = input.substr(input.find(delim1) + 1);
+		std::string node1 = input.substr(0, input.find(delim2));
+		int x1 = std::stoi(node1.substr(0, input.find(delimA)));
+		int y1 = std::stoi(node1.substr(input.find(delimA) + 1));
+		
+		NGNode* n1 = findNode(x1, y1);
+		if (n1 == NULL) {
+			std::string id1 = std::to_string(x1) + "_" + std::to_string(y1);
+			n1 = new NGNode(id1, x1, y1);
+			n1->setX(x1 * 10);
+			n1->setY(y1 * 10);
+			myNodeList.push_back(n1);
+		}
+		
+		input = input.substr(input.find(delim2) + 3);
+		std::string node2 = input.substr(0, input.find(delim3));
+		int x2 = std::stoi(node2.substr(0, input.find(delimA)));
+		int y2 = std::stoi(node2.substr(input.find(delimA) + 1));
+		
+		NGNode* n2 = findNode(x2, y2);
+		if (n2 == NULL) {
+			std::string id2 = std::to_string(x2) + "_" + std::to_string(y2);
+			n2 = new NGNode(id2, x2, y2);
+			n2->setX(x2 * 10);
+			n2->setY(y2 * 10);
+			myNodeList.push_back(n2);
+		}
+		
+		input = input.substr(input.find(delim3) + 3);
+		std::string shape = input.substr(0, input.find(delim4));
+
+		std::vector<Position> v;
+		
+		if (shape.find(delimB) != std::string::npos) {
+			v.push_back(*(new Position(x1 * 10, y1 * 10, 0)));
+			while (shape.find(delimB) != std::string::npos) {
+				shape = shape.substr(shape.find(delimB) + 1);
+				int turnX = std::stoi(shape.substr(0, shape.find(delimA)));
+				int turnY = std::stoi(shape.substr(shape.find(delimA) + 1, shape.find(delimD)));
+				v.push_back(*(new Position(turnX * 10.0, turnY * 10.0, 0.0)));
+			}
+			v.push_back(*(new Position(x2 * 10, y2 * 10, 0)));
+		}
+
+		PositionVector pos = *(new PositionVector(v));
+		connect(n1, n2, pos);
+	}
+}
+
+
 
 double
 NGNet::radialToX(double radius, double phi) {
@@ -211,6 +279,18 @@ NGNet::connect(NGNode* node1, NGNode* node2) {
     NGEdge* link2 = new NGEdge(id2, node2, node1);
     myEdgeList.push_back(link1);
     myEdgeList.push_back(link2);
+}
+
+void
+NGNet::connect(NGNode* node1, NGNode* node2, PositionVector shape) {
+	std::string id1 = node1->getID() + (myAlphaIDs ? "" : "to") + node2->getID();
+	std::string id2 = node2->getID() + (myAlphaIDs ? "" : "to") + node1->getID();
+	NGEdge* link1 = new NGEdge(id1, node1, node2, shape);
+	//NGEdge* link1 = new NGEdge(id1, node1, node2);
+	NGEdge* link2 = new NGEdge(id2, node2, node1, shape.reverse());
+	//NGEdge* link2 = new NGEdge(id2, node2, node1);
+	myEdgeList.push_back(link1);
+	myEdgeList.push_back(link2);
 }
 
 

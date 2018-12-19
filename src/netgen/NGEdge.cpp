@@ -52,6 +52,12 @@ NGEdge::NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode)
     : Named(id), myStartNode(startNode), myEndNode(endNode) {
     myStartNode->addLink(this);
     myEndNode->addLink(this);
+	myShape = *(new PositionVector());
+}
+
+NGEdge::NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode, PositionVector shape) : Named(id), myStartNode(startNode), myEndNode(endNode), myShape(shape) {
+	myStartNode->addLink(this);
+	myEndNode->addLink(this);
 }
 
 
@@ -71,15 +77,15 @@ NGEdge::buildNBEdge(NBNetBuilder& nb) const {
     if (lanenumber > 1 && OptionsCont::getOptions().getBool("rand.random-lanenumber")) {
         lanenumber = RandHelper::rand(lanenumber) + 1;
     }
-    return new NBEdge(
-               myID,
-               nb.getNodeCont().retrieve(myStartNode->getID()), // from
-               nb.getNodeCont().retrieve(myEndNode->getID()), // to
-               "", nb.getTypeCont().getSpeed(""), lanenumber,
-               priority, nb.getTypeCont().getWidth(""), NBEdge::UNSPECIFIED_OFFSET
-           );
+	// roads are only two lanes; each edge is only 1 lane in NetGen
+	return new NBEdge(
+		myID,
+		nb.getNodeCont().retrieve(myStartNode->getID()), // from
+		nb.getNodeCont().retrieve(myEndNode->getID()), // to
+		"", nb.getTypeCont().getSpeed(""), lanenumber,
+		priority, nb.getTypeCont().getWidth(""), NBEdge::UNSPECIFIED_OFFSET, myShape
+	);
 }
-
 
 /****************************************************************************/
 

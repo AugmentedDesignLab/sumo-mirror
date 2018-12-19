@@ -114,6 +114,20 @@ public:
      */
     void createChequerBoard(int numX, int numY, double spaceX, double spaceY, double attachLength);
 
+	/** @brief Creates a town-sim network
+	*
+	* Imports a list of nodes and edges from town-sim as a text file. Builds NGNodes
+	*  at the according positions and connects them using NGNet::connect.
+	* Stores both the nodes and the edges within the internal container.
+	*
+	* The nodes get an id from coordinate location. The ids
+	*  of the links are set in NGNet::connect.
+	*
+	* @param[in] filename The path of the input file
+	* @see NGNet::connect
+	*/
+	void createTownSim(std::string filename);
+
 
     /** @brief Creates a spider network
      *
@@ -190,6 +204,18 @@ private:
      * @param[in] node2 The second node to connect
      */
     void connect(NGNode* node1, NGNode* node2);
+
+	/** @brief Connects both nodes with two edges with turns, one for each direction 
+	*
+	* Builds one link for each direction and appends the links to myEdgeList.
+	* The name of a link is as following: &lt;FROM_NODE_ID&gt;to&lt;TO_NODE_ID&gt;.
+	*
+	* @param[in] node1 The first node to connect
+	* @param[in] node2 The second node to connect
+	* @param[in] shape The set of turns in the edge
+	*/
+	void connect(NGNode* node1, NGNode* node2, PositionVector shape);
+
 
     /// @brief return a letter code for the given integer index
     std::string alphabeticalCode(int i, int iMax);

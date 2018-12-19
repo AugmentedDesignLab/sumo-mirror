@@ -80,6 +80,7 @@ NBNodeShapeComputer::compute() {
     if (singleDirection) {
         return computeNodeShapeSmall();
     }
+
     // check whether the node is a just something like a geometry
     //  node (one in and one out or two in and two out, pair-wise continuations)
     // also in this case "computeNodeShapeSmall" is used
@@ -105,12 +106,12 @@ NBNodeShapeComputer::compute() {
         }
     }
 
-    //
     ret = computeNodeShapeDefault(geometryLike);
     // fail fall-back: use "computeNodeShapeSmall"
     if (ret.size() < 3) {
         ret = computeNodeShapeSmall();
     }
+
     return ret;
 }
 
@@ -191,8 +192,7 @@ NBNodeShapeComputer::computeNodeShapeDefault(bool simpleContinuation) {
     // recorded in 'myExtended'
     std::map<NBEdge*, double> distances;
     std::map<NBEdge*, bool> myExtended;
-
-    for (i = newAll.begin(); i != newAll.end(); ++i) {
+	for (i = newAll.begin(); i != newAll.end(); ++i) {
         EdgeVector::const_iterator cwi = i;
         EdgeVector::const_iterator ccwi = i;
         double ccad;
@@ -386,6 +386,7 @@ NBNodeShapeComputer::computeNodeShapeDefault(bool simpleContinuation) {
             distances[*i] = 100;
         }
     }
+
     // prevent inverted node shapes
     // (may happen with near-parallel edges)
     const double minDistSum = 2 * (100 + myRadius);
@@ -409,7 +410,6 @@ NBNodeShapeComputer::computeNodeShapeDefault(bool simpleContinuation) {
             }
         }
     }
-
 
     // build
     PositionVector ret;

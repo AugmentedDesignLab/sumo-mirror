@@ -48,6 +48,13 @@ NGFrame::fillOptions() {
     oc.doRegister("turn-lanes.length", new Option_Float(20));
     oc.addDescription("turn-lanes.length", "Processing", "Set the length of generated turning lanes to FLOAT");
 
+	// register town-sim-import options
+	oc.doRegister("town-sim", 't', new Option_Bool(false));
+	oc.addDescription("town-sim", "Town-Sim Network", "Forces NETGEN to build a network from input file");
+
+	oc.doRegister("town-sim.file", new Option_String());
+	oc.addDescription("town-sim.file", "Town-Sim Network", "The path of the file to import");
+
 
     //  register grid-net options
     oc.doRegister("grid", 'g', new Option_Bool(false));
@@ -201,6 +208,9 @@ NGFrame::checkOptions() {
     bool ok = true;
     // check whether exactly one type of a network to build was wished
     int no = 0;
+	if (oc.getBool("town-sim")) {
+		no++;
+	}
     if (oc.getBool("spider")) {
         no++;
     }

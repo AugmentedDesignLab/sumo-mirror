@@ -468,7 +468,7 @@ OptionsCont::addDescription(const std::string& name,
                             const std::string& description) {
     Option* o = getSecure(name);
     assert(o != 0);
-    assert(find(mySubTopics.begin(), mySubTopics.end(), subtopic) != mySubTopics.end());
+	assert(find(mySubTopics.begin(), mySubTopics.end(), subtopic) != mySubTopics.end());
     o->setDescription(description);
     mySubTopicEntries[subtopic].push_back(name);
 }

@@ -888,12 +888,12 @@ NBNode::computeNodeShape(double mismatchThreshold) {
     }
     try {
         NBNodeShapeComputer computer(*this);
-        myPoly = computer.compute();
+		myPoly = computer.compute();
         if (myRadius == UNSPECIFIED_RADIUS && !OptionsCont::getOptions().isDefault("default.junctions.radius")) {
             myRadius = computer.getRadius();
         }
         if (myPoly.size() > 0) {
-            PositionVector tmp = myPoly;
+			PositionVector tmp = myPoly;
             tmp.push_back_noDoublePos(tmp[0]); // need closed shape
             if (mismatchThreshold >= 0
                     && !tmp.around(myPosition)

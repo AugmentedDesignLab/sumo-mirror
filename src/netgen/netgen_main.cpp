@@ -67,8 +67,9 @@ fillOptions() {
 
     // insert options sub-topics
     SystemFrame::addConfigurationOptions(oc); // this subtopic is filled here, too
-    oc.addOptionSubTopic("Grid Network");
-    oc.addOptionSubTopic("Spider Network");
+	oc.addOptionSubTopic("Town-Sim Network");
+	oc.addOptionSubTopic("Grid Network");
+	oc.addOptionSubTopic("Spider Network");
     oc.addOptionSubTopic("Random Network");
     oc.addOptionSubTopic("Output");
     oc.addOptionSubTopic("Processing");
@@ -129,6 +130,16 @@ buildNetwork(NBNetBuilder& nb) {
                              oc.getFloat("spider.space-radius"), !oc.getBool("spider.omit-center"));
         return net;
     }
+
+	// town-sim net
+	if (oc.getBool("town-sim")) {
+		// get options
+		std::string filename = oc.getString("town-sim.file");
+		// build if everything's ok
+		NGNet* net = new NGNet(nb);
+		net->createTownSim(filename);
+		return net;
+	}
     // grid-net
     if (oc.getBool("grid")) {
         // get options
