@@ -64,7 +64,7 @@ public:
 	 * @param[in] Shape Shape of the edge 
      */
     NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode);
-	NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode, PositionVector shape);
+	NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode, PositionVector shape, std::string type);
 
 
 
@@ -114,6 +114,7 @@ private:
 
 	PositionVector myShape;
 
+	std::string myType;
 };
 
 

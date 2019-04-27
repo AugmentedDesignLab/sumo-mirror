@@ -53,9 +53,11 @@ NGEdge::NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode)
     myStartNode->addLink(this);
     myEndNode->addLink(this);
 	myShape = *(new PositionVector());
+	myType = std::string("");
 }
 
-NGEdge::NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode, PositionVector shape) : Named(id), myStartNode(startNode), myEndNode(endNode), myShape(shape) {
+NGEdge::NGEdge(const std::string& id, NGNode* startNode, NGNode* endNode, PositionVector shape, std::string type)
+	: Named(id), myStartNode(startNode), myEndNode(endNode), myShape(shape), myType(type) {
 	myStartNode->addLink(this);
 	myEndNode->addLink(this);
 }
@@ -74,6 +76,9 @@ NGEdge::buildNBEdge(NBNetBuilder& nb) const {
         priority = RandHelper::rand(priority) + 1;
     }
     int lanenumber = nb.getTypeCont().getNumLanes("");
+	if (myType.compare("major") == 0) {
+		lanenumber += 1;
+	}
     if (lanenumber > 1 && OptionsCont::getOptions().getBool("rand.random-lanenumber")) {
         lanenumber = RandHelper::rand(lanenumber) + 1;
     }

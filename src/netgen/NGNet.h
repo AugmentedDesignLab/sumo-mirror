@@ -214,7 +214,7 @@ private:
 	* @param[in] node2 The second node to connect
 	* @param[in] shape The set of turns in the edge
 	*/
-	void connect(NGNode* node1, NGNode* node2, PositionVector shape);
+	void connect(NGNode* node1, NGNode* node2, PositionVector shape, std::string type);
 
 
     /// @brief return a letter code for the given integer index

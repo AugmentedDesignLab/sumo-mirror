@@ -203,8 +203,13 @@ NGNet::createTownSim(std::string filename) {
 			v.push_back(*(new Position(x2 * 10, y2 * 10, 0)));
 		}
 
+		input = input.substr(input.find(delim4) + 1);
+		std::string type = std::string("minor");
+		if (input.length() > 0) {
+			type = input.substr(1);
+		}
 		PositionVector pos = *(new PositionVector(v));
-		connect(n1, n2, pos);
+		connect(n1, n2, pos, type);
 	}
 }
 
@@ -282,12 +287,12 @@ NGNet::connect(NGNode* node1, NGNode* node2) {
 }
 
 void
-NGNet::connect(NGNode* node1, NGNode* node2, PositionVector shape) {
+NGNet::connect(NGNode* node1, NGNode* node2, PositionVector shape, std::string type) {
 	std::string id1 = node1->getID() + (myAlphaIDs ? "" : "to") + node2->getID();
 	std::string id2 = node2->getID() + (myAlphaIDs ? "" : "to") + node1->getID();
-	NGEdge* link1 = new NGEdge(id1, node1, node2, shape);
+	NGEdge* link1 = new NGEdge(id1, node1, node2, shape, type);
 	//NGEdge* link1 = new NGEdge(id1, node1, node2);
-	NGEdge* link2 = new NGEdge(id2, node2, node1, shape.reverse());
+	NGEdge* link2 = new NGEdge(id2, node2, node1, shape.reverse(), type);
 	//NGEdge* link2 = new NGEdge(id2, node2, node1);
 	myEdgeList.push_back(link1);
 	myEdgeList.push_back(link2);
