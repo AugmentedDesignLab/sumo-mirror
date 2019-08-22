@@ -63,6 +63,10 @@ NGNode::~NGNode() {
     }
 }
 
+void NGNode::setJunctionTrafficControl(std::string& control) {
+	junctionTrafficControl = control;
+}
+
 
 NBNode*
 NGNode::buildNBNode(NBNetBuilder& nb) const {
@@ -73,11 +77,11 @@ NGNode::buildNBNode(NBNetBuilder& nb) const {
         return new NBNode(myID, pos, NODETYPE_NOJUNCTION);
     }
     NBNode* node = 0;
-    std::string typeS = OptionsCont::getOptions().isSet("default-junction-type") ?
-                        OptionsCont::getOptions().getString("default-junction-type") : "";
+    //std::string typeS = OptionsCont::getOptions().isSet("default-junction-type") ?
+                        //OptionsCont::getOptions().getString("default-junction-type") : "";
 
-    if (SUMOXMLDefinitions::NodeTypes.hasString(typeS)) {
-        SumoXMLNodeType type = SUMOXMLDefinitions::NodeTypes.get(typeS);
+    if (SUMOXMLDefinitions::NodeTypes.hasString(junctionTrafficControl)) {
+        SumoXMLNodeType type = SUMOXMLDefinitions::NodeTypes.get(junctionTrafficControl);
         node = new NBNode(myID, pos, type);
 
         // check whether it is a traffic light junction

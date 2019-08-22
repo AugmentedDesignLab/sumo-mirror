@@ -135,9 +135,11 @@ buildNetwork(NBNetBuilder& nb) {
 	if (oc.getBool("town-sim")) {
 		// get options
 		std::string filename = oc.getString("town-sim.file");
+		//oc.set("tls.guess", "true");
 		// build if everything's ok
 		NGNet* net = new NGNet(nb);
-		net->createTownSim(filename);
+		//net->createTownSim(filename);
+		net->createIntersectionNetwork(filename);
 		return net;
 	}
     // grid-net

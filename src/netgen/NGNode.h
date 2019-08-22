@@ -167,6 +167,9 @@ public:
      */
     bool connected(NGNode* node) const;
 
+	//access function to set junction traffic control
+	void setJunctionTrafficControl(std::string& control);
+
 
     /** @brief Returns whether the node has the given position
      *
@@ -198,6 +201,9 @@ private:
 
     /// @brief Information whether this is the center of a cpider-net
     bool myAmCenter;
+
+	/// Traffic control for this junction. (Used to tell if it is a stop-sign or a traffic-light)
+	std::string junctionTrafficControl;
 
 };
 

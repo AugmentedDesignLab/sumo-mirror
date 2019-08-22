@@ -216,7 +216,7 @@ PositionVector::operator[](int index) const {
     if (index >= 0 && index < (int)size()) {
         return at(index);
     } else if (index < 0 && -index <= (int)size()) {
-        return at((int)size() + index);
+        return at((uint64_t)size() + index);
     } else {
         throw ProcessError("Index out of range in bracket operator of PositionVector");
     }
@@ -235,7 +235,7 @@ PositionVector::operator[](int index) {
     if (index >= 0 && index < (int)size()) {
         return at(index);
     } else if (index < 0 && -index <= (int)size()) {
-        return at((int)size() + index);
+        return at((uint64_t)size() + index);
     } else {
         throw ProcessError("Index out of range in bracket operator of PositionVector");
     }
@@ -1345,8 +1345,8 @@ PositionVector::simplified() const {
         changed = false;
         for (int i = 0; i < (int)result.size(); i++) {
             const Position& p1 = result[i];
-            const Position& p2 = result[(i + 2) % result.size()];
-            const int middleIndex = (i + 1) % result.size();
+            const Position& p2 = result[((int)i + 2) % result.size()];
+            const int middleIndex = ((int)i + 1) % result.size();
             const Position& p0 = result[middleIndex];
             // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
             const double triangleArea2 = fabs((p2.y() - p1.y()) * p0.x() - (p2.x() - p1.x()) * p0.y() + p2.x() * p1.y()  - p2.y() * p1.x());

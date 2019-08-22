@@ -906,7 +906,7 @@ NBEdge::checkGeometry(const double maxAngle, const double minRadius, bool fix) {
     }
     //std::cout << "\n  relative angles: ";
     for (int i = 0; i < (int)angles.size() - 1; ++i) {
-        const double relAngle = fabs(GeomHelper::angleDiff(angles[i], angles[i + 1]));
+        const double relAngle = fabs(GeomHelper::angleDiff(angles[i], angles[(__int64)i + 1]));
         //std::cout << relAngle << " ";
         if (maxAngle > 0 && relAngle > maxAngle) {
             WRITE_WARNING("Found angle of " + toString(RAD2DEG(relAngle)) + " degrees at edge '" + getID() + "', segment " + toString(i));
@@ -2132,7 +2132,7 @@ NBEdge::recheckLanes() {
             if (connNumbersPerLane[i] == 0 && !isForbidden(getPermissions((int)i))) {
                 if (i > 0 && connNumbersPerLane[i - 1] > 1 && getPermissions(i) == getPermissions(i - 1)) {
                     moveConnectionToLeft(i - 1);
-                } else if (i < (int)myLanes.size() - 1 && connNumbersPerLane[i + 1] > 1 && getPermissions(i) == getPermissions(i + 1)) {
+                } else if (i < (int)myLanes.size() - 1 && connNumbersPerLane[(__int64)i + 1] > 1 && getPermissions(i) == getPermissions(i + 1)) {
                     moveConnectionToRight(i + 1);
                 }
             }
@@ -2436,8 +2436,8 @@ NBEdge::addStraightConnections(const EdgeVector* outgoing, const std::vector<int
             if (dir == LINKDIR_STRAIGHT) {
                 maxPrio = (*priorities)[i];
                 target = (*outgoing)[i];
-                rightOfTarget = i == 0 ? outgoing->back() : (*outgoing)[i - 1];
-                leftOfTarget = i + 1 == numOutgoing ? outgoing->front() : (*outgoing)[i + 1];
+                rightOfTarget = i == 0 ? outgoing->back() : (*outgoing)[(__int64)i - 1];
+                leftOfTarget = i + 1 == numOutgoing ? outgoing->front() : (*outgoing)[(__int64)i + 1];
             }
         }
     }

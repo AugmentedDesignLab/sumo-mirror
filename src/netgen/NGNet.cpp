@@ -51,11 +51,14 @@ NGNet::NGNet(NBNetBuilder& nb) :
 }
 
 
-NGNet::~NGNet() {
-    for (NGEdgeList::iterator ni = myEdgeList.begin(); ni != myEdgeList.end(); ++ni) {
+NGNet::~NGNet() 
+{
+    for (NGEdgeList::iterator ni = myEdgeList.begin(); ni != myEdgeList.end(); ++ni) 
+	{
         delete *ni;
     }
-    for (NGNodeList::iterator ni = myNodeList.begin(); ni != myNodeList.end(); ++ni) {
+    for (NGNodeList::iterator ni = myNodeList.begin(); ni != myNodeList.end(); ++ni) 
+	{
         delete *ni;
     }
 }
@@ -117,7 +120,7 @@ NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, doub
             NGNode* bottomNode = new NGNode("bottom" + toString<int>(ix), ix, numY + 1);
             topNode->setX(ix * spaceX + attachLength);
             bottomNode->setX(ix * spaceX + attachLength);
-            topNode->setY((numY - 1) * spaceY + 2 * attachLength);
+            topNode->setY(((double)numY - 1.0) * spaceY + 2 * attachLength);
             bottomNode->setY(0);
             myNodeList.push_back(topNode);
             myNodeList.push_back(bottomNode);
@@ -130,7 +133,7 @@ NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, doub
             NGNode* leftNode = new NGNode("left" + toString<int>(iy), numX, iy);
             NGNode* rightNode = new NGNode("right" + toString<int>(iy), numX + 1, iy);
             leftNode->setX(0);
-            rightNode->setX((numX - 1) * spaceX + 2 * attachLength);
+            rightNode->setX(((double)numX - 1.0) * spaceX + 2 * attachLength);
             leftNode->setY(iy * spaceY + attachLength);
             rightNode->setY(iy * spaceY + attachLength);
             myNodeList.push_back(leftNode);
@@ -140,6 +143,71 @@ NGNet::createChequerBoard(int numX, int numY, double spaceX, double spaceY, doub
             connect(rightNode, findNode(numX - 1, iy));
         }
     }
+} 
+
+//similar to createTownSim but for reading json.
+void NGNet::createIntersectionNetwork(std::string filename) {
+	std::ifstream json_file(filename);
+	json json_data = json::parse(json_file);
+
+	//delimiters for extracting substrings from values.
+	std::string delimiter_A = ",";
+	std::string delimiter_B = "[";
+	std::string delimiter_C = "]";
+	
+	//for processing individual road data.
+	for (int i = 1; i <= json_data["incoming_roads"]; i++) {
+
+		std::string roadNumberString = "road" + toString<int>(i);
+
+		std::array<int, 2> Node1 = json_data[roadNumberString]["road_start_point"];
+		std::string id1 = toString<int>(Node1[0]) + "_" + toString<int>(Node1[1]);
+		NGNode* n1 = findNode(Node1[0], Node1[1]); //from the createTownSim() function. 
+		if (n1 == NULL) {
+			n1 = new NGNode(id1, Node1[0], Node1[1]);
+			n1->setX((double)Node1[0]);
+			n1->setY((double)Node1[1]);
+			myNodeList.push_back(n1);
+		}
+
+		std::array<int, 2> Node2 = json_data[roadNumberString]["road_end_point"];
+		std::string id2 = toString<int>(Node2[0]) + "_" + toString<int>(Node2[1]);
+		NGNode* n2 = findNode(Node2[0], Node2[1]); //from the createTownSim() function. 
+		if (n2 == NULL) {
+			n2 = new NGNode(id2, Node2[0], Node2[1]);
+			n2->setX((double)Node2[0]);
+			n2->setY((double)Node2[1]);
+			myNodeList.push_back(n2);
+		}
+
+		std::string trafficControl = json_data["traffic_control"];
+		std::string trafficControlOption1 = "allway_stop";
+		std::string trafficControlOption2 = "traffic-light";
+		if (trafficControl.compare("stop_signs") == 0) n1->setJunctionTrafficControl(trafficControlOption1);
+		else if (trafficControl.compare("traffic_lights")) n1->setJunctionTrafficControl(trafficControlOption2);
+		
+		std::string type;
+		int lane_number = json_data[roadNumberString]["lanes"];
+		if (lane_number == 4) type = "four-laned";
+		else if (lane_number == 6) type = "six-laned";
+		
+		PositionVector pos = *(new PositionVector(Position((double)Node1[0], (double)Node1[1]), Position((double)Node2[0], (double)Node2[1])));//Position constructor takes parameters of double type.
+		connect(n1, n2, pos, type);
+    }
+	if (json_data["turn_lanes"] > 0) {
+		OptionsCont::getOptions().set("turn-lanes", toString<int>(json_data["turn_lanes"]));
+		OptionsCont::getOptions().set("turn-lanes.length", toString<int>(0.20 * (json_data["length"]))); //20% of the given length of roads. Default length is 100m.
+	}
+	
+	if (json_data["crossings"]) {
+		OptionsCont::getOptions().set("sidewalks.guess", "true");  
+		OptionsCont::getOptions().set("crossings.guess", toString<bool>(json_data["crossings"]));
+		/*
+		All incoming edges for an intersection will have sidewalks if the crossings value is true. If the crossings value is true,
+		then there would be crossings and walking areas at the intersection, along with sidewalks. If this value is false, all of these
+		would be absent.
+		*/
+	}	
 }
 
 void
@@ -159,19 +227,20 @@ NGNet::createTownSim(std::string filename) {
 	std::string delimD = ")";
 
 	while (std::getline(file, input)) {
-		input = input.substr(input.find(delim1) + 1);
+		input = input.substr(input.find(delim1) + 1); //From this position to the end.
 		std::string node1 = input.substr(0, input.find(delim2));
 		int x1 = std::stoi(node1.substr(0, input.find(delimA)));
 		int y1 = std::stoi(node1.substr(input.find(delimA) + 1));
 		
+		//Find NGNode, if it doesn't exist then create one with the coordinates given. 
 		NGNode* n1 = findNode(x1, y1);
 		if (n1 == NULL) {
 			std::string id1 = std::to_string(x1) + "_" + std::to_string(y1);
 			n1 = new NGNode(id1, x1, y1);
-			n1->setX(x1 * 10);
-			n1->setY(y1 * 10);
+			n1->setX((double)x1 * 10.0);
+			n1->setY((double)y1 * 10.0);
 			myNodeList.push_back(n1);
-		}
+		} 
 		
 		input = input.substr(input.find(delim2) + 3);
 		std::string node2 = input.substr(0, input.find(delim3));
@@ -182,8 +251,8 @@ NGNet::createTownSim(std::string filename) {
 		if (n2 == NULL) {
 			std::string id2 = std::to_string(x2) + "_" + std::to_string(y2);
 			n2 = new NGNode(id2, x2, y2);
-			n2->setX(x2 * 10);
-			n2->setY(y2 * 10);
+			n2->setX((double)x2 * 10.0);
+			n2->setY((double)y2 * 10.0);
 			myNodeList.push_back(n2);
 		}
 		
@@ -193,14 +262,14 @@ NGNet::createTownSim(std::string filename) {
 		std::vector<Position> v;
 		
 		if (shape.find(delimB) != std::string::npos) {
-			v.push_back(*(new Position(x1 * 10, y1 * 10, 0)));
+			v.push_back(*(new Position(((double)x1 * 10.0), (double)y1 * 10.0, 0.0)));
 			while (shape.find(delimB) != std::string::npos) {
 				shape = shape.substr(shape.find(delimB) + 1);
 				int turnX = std::stoi(shape.substr(0, shape.find(delimA)));
 				int turnY = std::stoi(shape.substr(shape.find(delimA) + 1, shape.find(delimD)));
-				v.push_back(*(new Position(turnX * 10.0, turnY * 10.0, 0.0)));
+				v.push_back(*(new Position(((double)turnX * 10.0), ((double)turnY * 10.0), 0.0)));
 			}
-			v.push_back(*(new Position(x2 * 10, y2 * 10, 0)));
+			v.push_back(*(new Position((double)x2 * 10.0, (double)y2 * 10.0, 0.0)));
 		}
 
 		input = input.substr(input.find(delim4) + 1);
@@ -247,8 +316,8 @@ NGNet::createSpiderWeb(int numRadDiv, int numCircles, double spaceRad, bool hasC
                                         nodeIDStart + toString<int>(ir) :
                                         toString<int>(ir) + "/" + toString<int>(ic));
             Node = new NGNode(nodeID, ir, ic);
-            Node->setX(radialToX((ic) * spaceRad, (ir - 1) * angle));
-            Node->setY(radialToY((ic) * spaceRad, (ir - 1) * angle));
+            Node->setX(radialToX((ic) * spaceRad, ((__int64)ir - 1) * angle));
+            Node->setY(radialToY((ic) * spaceRad, ((__int64)ir - 1) * angle));
             myNodeList.push_back(Node);
             // create Links
             if (ir > 1) {
@@ -302,12 +371,14 @@ NGNet::connect(NGNode* node1, NGNode* node2, PositionVector shape, std::string t
 void
 NGNet::toNB() const {
     std::vector<NBNode*> nodes;
-    for (NGNodeList::const_iterator i1 = myNodeList.begin(); i1 != myNodeList.end(); i1++) {
+    for (NGNodeList::const_iterator i1 = myNodeList.begin(); i1 != myNodeList.end(); i1++) 
+	{
         NBNode* node = (*i1)->buildNBNode(myNetBuilder);
         nodes.push_back(node);
         myNetBuilder.getNodeCont().insert(node);
     }
-    for (NGEdgeList::const_iterator i2 = myEdgeList.begin(); i2 != myEdgeList.end(); i2++) {
+    for (NGEdgeList::const_iterator i2 = myEdgeList.begin(); i2 != myEdgeList.end(); i2++) 
+	{
         NBEdge* edge = (*i2)->buildNBEdge(myNetBuilder);
         myNetBuilder.getEdgeCont().insert(edge);
     }

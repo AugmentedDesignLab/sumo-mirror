@@ -76,8 +76,11 @@ NGEdge::buildNBEdge(NBNetBuilder& nb) const {
         priority = RandHelper::rand(priority) + 1;
     }
     int lanenumber = nb.getTypeCont().getNumLanes("");
-	if (myType.compare("major") == 0) {
+	if (myType.compare("four-laned") == 0) {
 		lanenumber += 1;
+	}
+	if (myType.compare("six-laned") == 0) {
+		lanenumber += 2;
 	}
     if (lanenumber > 1 && OptionsCont::getOptions().getBool("rand.random-lanenumber")) {
         lanenumber = RandHelper::rand(lanenumber) + 1;

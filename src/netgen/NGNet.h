@@ -27,6 +27,7 @@
 
 #include "NGEdge.h"
 #include "NGNode.h"
+#include "nlohmann/json.hpp"
 
 
 // ===========================================================================
@@ -113,6 +114,10 @@ public:
      * @see NGNet::connect
      */
     void createChequerBoard(int numX, int numY, double spaceX, double spaceY, double attachLength);
+
+	//create road network after reading a json file.
+	using json = nlohmann::json;
+	void NGNet::createIntersectionNetwork(std::string filename);
 
 	/** @brief Creates a town-sim network
 	*

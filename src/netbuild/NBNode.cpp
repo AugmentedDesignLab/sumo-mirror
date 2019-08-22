@@ -320,7 +320,7 @@ void
 NBNode::mirrorX() {
     myPosition.mul(1, -1);
     myPoly.mirrorX();
-    // mirror pre-computed geometty of crossings and walkingareas
+    // mirror pre-computed geometry of crossings and walkingareas
     for (auto c : myCrossings) {
         c->shape.mirrorX();
     }
@@ -2318,7 +2318,7 @@ NBNode::buildCrossings() {
         int maxAngleDiffIndex = 0; // index before maxDist
         for (int i = 0; i < (int) edges.size(); i++) {
             double diff = NBHelpers::relAngle(edges[i]->getAngleAtNodeToCenter(this),
-                                              edges[(i + 1) % edges.size()]->getAngleAtNodeToCenter(this));
+                                              edges[((__int64)i + 1) % edges.size()]->getAngleAtNodeToCenter(this));
             if (diff < 0) {
                 diff += 360;
             }
@@ -2332,7 +2332,7 @@ NBNode::buildCrossings() {
         }
         if (maxAngleDiff > 2 && maxAngleDiff < 360 - 2) {
             // if the angle differences is too small, we better not rotate
-            std::rotate(edges.begin(), edges.begin() + (maxAngleDiffIndex + 1) % edges.size(), edges.end());
+            std::rotate(edges.begin(), edges.begin() + ((__int64)maxAngleDiffIndex + 1) % edges.size(), edges.end());
             if (gDebugFlag1) {
                 std::cout << " rotatedEdges=" << toString(edges);
             }
@@ -2480,7 +2480,7 @@ NBNode::buildWalkingAreas(int cornerDetail) {
         const int start = waIndices[i].first;
         const int prev = start > 0 ? start - 1 : (int)normalizedLanes.size() - 1;
         const int count = waIndices[i].second;
-        const int end = (start + count) % normalizedLanes.size();
+        const int end = ((__int64)start + count) % normalizedLanes.size();
 
         WalkingArea wa(":" + getID() + "_w" + toString(index++), 1);
         if (gDebugFlag1) {
@@ -2562,7 +2562,7 @@ NBNode::buildWalkingAreas(int cornerDetail) {
         // build shape and connections
         std::set<NBEdge*> connected;
         for (int j = 0; j < count; ++j) {
-            const int nlI = (start + j) % normalizedLanes.size();
+            const int nlI = ((__int64)start + j) % normalizedLanes.size();
             NBEdge* edge = normalizedLanes[nlI].first;
             NBEdge::Lane l = normalizedLanes[nlI].second;
             wa.width = MAX2(wa.width, l.width);
@@ -2621,7 +2621,7 @@ NBNode::buildWalkingAreas(int cornerDetail) {
             int smoothPrev = prev;
             // extend to green verge
             if (endCrossingWidth > 0 && normalizedLanes[smoothEnd].second.permissions == 0) {
-                smoothEnd = (smoothEnd + 1) % normalizedLanes.size();
+                smoothEnd = ((__int64)smoothEnd + 1) % normalizedLanes.size();
             }
             if (startCrossingWidth > 0 && normalizedLanes[smoothPrev].second.permissions == 0) {
                 if (smoothPrev == 0) {
